@@ -6,14 +6,48 @@
 </head>
 
 <body>
-    <form method="post" action="/upload" enctype="multipart/form-data">
+    <form method="post" action="/upload" enctype="multipart/form-data" id="form">
         <div>
             <input type="file" name="file">
         </div>
         <div>
             <button type="submit">Upload</button>
+            <button type="button" id="cancel">Cancel</button>
         </div>
     </form>
+    <textarea id="log" style="width: 400px; height: 500px"></textarea>
+
+    <script>
+        const logElement = document.getElementById('log')
+        function log(message) {
+            logElement.value = logElement.value + message + "\n";
+        }
+
+        let xhr = null;
+
+        document.getElementById('form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            xhr = new XMLHttpRequest();
+            xhr.open(form.getAttribute('method'), form.getAttribute('action'));
+            xhr.onload = function (e) {
+                log('onload');
+            };
+            xhr.upload.onprogress = function (e) {
+                log('onprogress: ' + Math.floor(e.loaded / e.total * 100) + '%');
+            }
+            xhr.send(formData);
+        });
+
+        document.getElementById('cancel').addEventListener('click', function (e) {
+            if (xhr !== null) {
+                xhr.abort();
+            }
+        });
+
+        log('Please upload large file');
+    </script>
 </body>
 
 </html>
